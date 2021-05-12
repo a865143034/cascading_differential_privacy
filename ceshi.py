@@ -15,7 +15,7 @@ import math
 #
 # c=int(np.log2(8))
 # print(c)
-
+from sklearn import preprocessing
 
 def cal_num(t):
     b = bin(t)
@@ -26,5 +26,16 @@ def cal_num(t):
     print(num1,residue,num2)
     return num1 + num2
 
+a=np.random.laplace(0,100,100)
 
-print(cal_num(32))
+b=np.random.normal(0,267,100)
+
+print(a)
+print(b)
+#print(b)
+
+a=[1,2,3]
+b = np.mean(a)
+print(b)
+
+

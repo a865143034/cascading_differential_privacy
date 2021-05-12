@@ -16,15 +16,21 @@ from cascade_ucb import *
 number_of_rounds =  int(1e5)
 p = 0.2
 delta  = 0.15
-L = 40
-K = 20
+L = 8
+K = 2
 
-weights = [p for i in range(K)] + [np.abs(p-delta) for i in range(L-K)]
+#weights = [p for i in range(K)] + [np.abs(p-delta) for i in range(L-K)]
 
-#shuffle(weights)
+
+
+
+weights=[0.1,0.05,0.3,0.6,0.8,0.6,0.9,0.2]
+shuffle(weights)
+#print(weights)
 #cascade_model = CascadeUCB(number_of_rounds,L,K)
-cascade_model = CascadeUCB_LDP_laplace(number_of_rounds,L,K)
-#cascade_model = CascadeUCB_LDP_gaussian(number_of_rounds,L,K)
+
+#cascade_model = CascadeUCB_LDP_laplace(number_of_rounds,L,K)
+cascade_model = CascadeUCB_LDP_gaussian(number_of_rounds,L,K)
 #cascade_model = CascadeUCB_DP(number_of_rounds,L,K)
 #cascade_model = CombiUCB_LDP_gaussian(number_of_rounds,L,K)
 #cascade_model = CombiUCB_LDP_laplace(number_of_rounds,L,K)
@@ -33,19 +39,20 @@ dataset = generate_data(number_of_rounds, weights)
 #先全部把所有数据sample出来
 
 # initializing
-cascade_model.initialize(dataset,weights)
+cascade_model.initialize(dataset,weights,0.2,0.001)
 
 # training
 for t in range(1,number_of_rounds) :
     cascade_model.one_round(t,dataset)
 
-f=open('cascading_ldp_origin_b','w')
-for i in cascade_model.regrets:
-    f.write(str(i)+'\n')
-f.close()
+# f=open('cascading_ldp_laplace_1', 'w')
+# for i in cascade_model.regrets:
+#     f.write(str(i)+'\n')
+# f.close()
 
 #print(cascade_model.regrets)
 regrets = pd.Series(cascade_model.regrets)
+#print(cascade_model.regrets)
 plt.figure(figsize=(12, 6))
 
 plt.plot(regrets)

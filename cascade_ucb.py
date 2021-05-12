@@ -2,7 +2,7 @@ import sys
 import os
 import numpy as np
 import pandas as pd
-
+from sklearn import preprocessing
 class CascadeUCB():
     def __init__(self, number_of_rounds, L, K):
         super().__init__()
@@ -17,6 +17,7 @@ class CascadeUCB():
         self.regrets = np.zeros(number_of_rounds)
     
     def initialize(self, dataset, weights):
+        w1=sorted(weights,reverse=True)
         self.T[0, :] = 1
         for t in range(self.L - 1):
             d = np.random.permutation(self.L)
@@ -24,9 +25,10 @@ class CascadeUCB():
             reward = dataset[t][At]
             self.w[0, t] = reward[0]
         # Best reward
+        #print(w1)
         r = 1
         for k in range(self.K):
-            r = r*(1-weights[k])
+            r = r*(1-w1[k])
         self.best_f = 1-r
     #f函数有问题
     def f(self, t):
@@ -93,6 +95,7 @@ class CascadeUCB_LDP_gaussian():
 
 
     def initialize(self, dataset, weights, epsilon, delta):
+        w1=sorted(weights,reverse=True)
         self.T[0, :] = 1
         for t in range(self.L):
             d = np.random.permutation(self.L)
@@ -103,14 +106,13 @@ class CascadeUCB_LDP_gaussian():
         # Best reward
         r = 1
         for k in range(self.K):
-            r = r*(1-weights[k])
+            r = r*(1-w1[k])
         self.best_f = 1-r
 
         self.weights=weights
         self.epsilon=epsilon
         self.delta=delta
         self.sigma = 1/epsilon * np.sqrt(2 * self.K * np.log(1.25/delta))
-        #print(1/epsilon, np.sqrt(2 * self.K * np.log(1.25/delta)))
         
 
     def f(self, t):
@@ -136,12 +138,13 @@ class CascadeUCB_LDP_gaussian():
             if k < int(self.C[t]):
                 self.T[t, self.A[t, k]] += 1
                 self.w[t, self.A[t, k]] = (
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + np.random.normal(0, self.sigma))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + 0.01*np.random.normal(0, self.sigma))/self.T[t, self.A[t, k]]
+                np.random.normal(0, self.sigma)
 
             else:
                 self.T[t, self.A[t, k]] += 1
                 self.w[t, self.A[t, k]] = (
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + np.random.normal(0, self.sigma))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + 0.01*np.random.normal(0, self.sigma))/self.T[t, self.A[t, k]]
 
     def one_round(self, t, dataset):
         #update gamma
@@ -200,9 +203,10 @@ class CascadeUCB_LDP_laplace():
             reward = dataset[t][At]
             self.w[0, t] = reward[0]
         # Best reward
+        w1=sorted(weights,reverse=True)
         r = 1
         for k in range(self.K):
-            r = r*(1-weights[k])
+            r = r*(1-w1[k])
         self.best_f = 1-r #期望奖励
         self.epsilon = epsilon
         self.weights=weights
@@ -212,6 +216,7 @@ class CascadeUCB_LDP_laplace():
 
     def f(self, t):
         r = 1
+        #print(self.w[t-1])
         for k in range(self.K):
             r = r * (1 - self.w[t - 1, self.A[t, k]])
         reward = 1 - r
@@ -233,11 +238,11 @@ class CascadeUCB_LDP_laplace():
                 self.T[t, self.A[t, k]] += 1
                 #print(self.K, np.random.laplace(self.epsilon/self.K))
                 self.w[t, self.A[t, k]] = float(
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + 0.01*np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
             else:
                 self.T[t, self.A[t, k]] += 1
                 self.w[t, self.A[t, k]] = (
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + 0.01*np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
 
 
 
@@ -256,6 +261,9 @@ class CascadeUCB_LDP_laplace():
         immediate_regret = self.best_f-self.f(t)
         # self.regrets[t] = self.regrets[t-1] + np.abs(immediate_regret)
         self.regrets[t] = np.abs(immediate_regret)
+        # print(self.best_f)
+        # print(self.f(t))
+        # print(self.regrets[t] )
         # get index of  attractive item
 
 
@@ -292,10 +300,11 @@ class CascadeUCB_DP():
             reward = dataset[t][At]
             self.w[0, t] = reward[0]
         # Best reward
+        w1=sorted(weights,reverse=True)
         r = 1
         for k in range(self.K):
-            r = r * (1 - weights[k])
-        self.best_f = 1 - r
+            r = r*(1-w1[k])
+        self.best_f = 1-r #期望奖励
         self.epsilon=epsilon
 
     def f(self, t):
@@ -392,9 +401,10 @@ class CombiUCB_LDP_gaussian():
             reward = dataset[t][At]
             self.w[0, t] = reward[0]
         # Best reward
+        w1=sorted(weights,reverse=True)
         r = 0
         for k in range(self.K):
-            r += weights[k]
+            r += w1[k]
         self.best_f = r #期望奖励
         self.epsilon = epsilon
         self.delta=delta
@@ -486,9 +496,11 @@ class CombiUCB_origin():
             reward = dataset[t][At]
             self.w[0, t] = reward[0]
         # Best reward
+
+        w1=sorted(weights,reverse=True)
         r = 0
         for k in range(self.K):
-            r += weights[k]
+            r += w1[k]
         self.best_f = r #期望奖励
 
 
@@ -579,9 +591,10 @@ class CombiUCB_LDP_laplace():
             reward = dataset[t][At]
             self.w[0, t] = reward[0]
         # Best reward
+        w1=sorted(weights,reverse=True)
         r = 0
         for k in range(self.K):
-            r += weights[k]
+            r += w1[k]
         self.best_f = r #期望奖励
         self.epsilon = epsilon
 
