@@ -18,7 +18,7 @@ A=[]
 B=[]
 C=[]
 
-f1=open('cascading_ldp_origin_0_2', 'r')
+f1=open('cascading_ldp_origin', 'r')
 
 for line in f1.readlines():
     line=line.strip()
@@ -26,12 +26,12 @@ for line in f1.readlines():
     A.append(line)
 A=np.cumsum(A)
 
-f2=open('cascading_ldp_laplace_0_5', 'r')
+f2=open('cascading_ldp_laplace_2', 'r')
 for line in f2.readlines():
     line=line.strip()
     B.append(float(line))
 B=np.cumsum(B)
-f3=open('cascading_ldp_gaussian_0_5', 'r')
+f3=open('cascading_ldp_gaussian_2', 'r')
 for line in f3.readlines():
     line=line.strip()
     C.append(float(line))

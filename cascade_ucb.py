@@ -183,7 +183,7 @@ class CascadeUCB_LDP_laplace():
         self.K = K
         self.T = np.zeros((number_of_rounds, L))#base arm摇的次数
         self.U = np.zeros((number_of_rounds, L))#UCB term
-        self.w = np.zeros((number_of_rounds, L),dtype=np.float) #base arm的reward
+        self.w = np.zeros((number_of_rounds, L)) #base arm的reward
         self.A = np.zeros((number_of_rounds, K), dtype=np.int32) #每轮的action
         self.C = np.zeros(number_of_rounds) #每轮截止的position
         self.regrets = np.zeros(number_of_rounds)

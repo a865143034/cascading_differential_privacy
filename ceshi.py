@@ -35,7 +35,8 @@ print(b)
 #print(b)
 
 a=[1,2,3]
-b = np.mean(a)
-print(b)
+b=[4,5,6]
+c=np.mean(a,b)
+print(c)
 
 
