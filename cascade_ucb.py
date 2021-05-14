@@ -15,6 +15,7 @@ class CascadeUCB():
         self.A = np.zeros((number_of_rounds, K), dtype=np.int32)
         self.C = np.zeros(number_of_rounds)
         self.regrets = np.zeros(number_of_rounds)
+        self.weights= np.zeros(L)
     
     def initialize(self, dataset, weights):
         w1=sorted(weights,reverse=True)
@@ -63,7 +64,7 @@ class CascadeUCB():
         # get reward
         reward = dataset[t][self.A[t]]
         # compute regret
-        immediate_regret = np.abs(self.best_f-self.f(t))
+        immediate_regret = self.best_f-self.f(t)
         # self.regrets[t] = self.regrets[t-1] + np.abs(immediate_regret)
         self.regrets[t] = np.abs(immediate_regret)
         # get index of  attractive item
@@ -124,7 +125,7 @@ class CascadeUCB_LDP_gaussian():
 
     def update_ucb_item(self, e, t):#need to check
         c = np.sqrt((1.5*np.log(t))/self.T[t-1, e])
-        gaussian_term = 0.01*self.sigma * np.sqrt((2*np.log(2 * pow(t, 3)))/self.T[t-1, e])
+        gaussian_term = 0.1*self.sigma * np.sqrt((2*np.log(2 * pow(t, 3)))/self.T[t-1, e])
             #print(np.sqrt((2*np.log(2 * pow(t, 3)))/self.T[t-1, e]))
         #print('*****')
         #print(c)
@@ -157,7 +158,7 @@ class CascadeUCB_LDP_gaussian():
         # get reward
         reward = dataset[t][self.A[t]]
         # compute regret
-        immediate_regret = np.abs(self.best_f-self.f(t))
+        immediate_regret = self.best_f-self.f(t)
         #print(self.f(t))
         # print(self.f(t))
         # if self.f(t)<0:
@@ -169,6 +170,7 @@ class CascadeUCB_LDP_gaussian():
             self.C[t] = np.argmax(reward)
         else:
             self.C[t] = 1e6
+
         self.update_weights(t)
 
 
@@ -224,8 +226,11 @@ class CascadeUCB_LDP_laplace():
 
     def update_ucb_item(self, e, t):
         c = np.sqrt((1.5*np.log(t))/self.T[t-1, e])
-        laplace_term = 0.05*(self.K/self.epsilon) * np.sqrt((24 * np.log(t))/self.T[t-1, e])
+        laplace_term = 0.1*(self.K/self.epsilon) * np.sqrt((24 * np.log(t))/self.T[t-1, e])
         # print('*****')
+        # print(c)
+        # print(laplace_term)
+        # print('*******')
         # print(c)
         # print(laplace_term)
         return self.w[t-1, e] + c + laplace_term
@@ -314,24 +319,32 @@ class CascadeUCB_DP():
         reward = 1 - r
         return reward
 
-    def cal_num(self,t):
+    def cal_sum(self,t):
         b = bin(t)
         num1 = len(b) - 2
+        sum1=num1*np.random.laplace(0, 2*self.L*num1 /self.epsilon)
+
         residue = t - pow(2, num1 - 1)
-        if residue == 0: return num1
+        if residue == 0: return sum1
         num2 = int(np.log2(residue)) + 1
+        sum2=num2*np.random.laplace(0, 2*self.L*num2 / self.epsilon)
         #print(num1, residue, num2)
-        return num1 + num2
+        return sum1+sum2
 
     def update_ucb_item(self, e, t):
         c = np.sqrt((1.5 * np.log(t)) / self.T[t - 1, e])
-        laplace_term = 0.01*3 * self.K * np.log(t) * (np.log(self.T[t - 1, e])) ** (1.5) / (self.T[t - 1, e] * self.epsilon)
+        laplace_term = 0.1*3 * self.K * np.log(t) * (np.log(self.T[t - 1, e])) ** (1.5) / (self.T[t - 1, e] * self.epsilon)
         #print(c)
         #print(laplace_term)
-        num = self.cal_num(t)
-        hat_w = self.w[t - 1, e] + np.random.laplace(0, self.K / self.epsilon) * num/self.T[t - 1, e]
+        sum = self.cal_sum(t)
+        hat_w = self.w[t - 1, e] + 0.01*sum/self.T[t - 1, e]
+        #print(0.01*sum/self.T[t - 1, e])
+        #print(print(laplace_term))
         #print(hat_w)
-        #print('***')
+        # print('***')
+        # print(hat_w)
+        # print(c)
+        # print(laplace_term)
         return hat_w + c+laplace_term
 
     def update_weights(self, t):
@@ -422,7 +435,9 @@ class CombiUCB_LDP_gaussian():
 
     def update_ucb_item(self, e, t):
         c = np.sqrt((1.5*np.log(t))/self.T[t-1, e])
-        gaussian_term = (2/self.epsilon) * np.sqrt((2*self.K* np.log(t)*np.log(1.25/self.delta))/self.T[t-1, e])
+        gaussian_term = 0.1*(2/self.epsilon) * np.sqrt((2*self.K* np.log(t)*np.log(1.25/self.delta))/self.T[t-1, e])
+        # print(c)
+        # print(gaussian_term)
         return self.w[t-1, e] + c + gaussian_term
 
     def update_weights(self, t):
@@ -434,11 +449,11 @@ class CombiUCB_LDP_gaussian():
                 self.T[t, self.A[t, k]] += 1
                 #print(self.K, np.random.laplace(self.epsilon/self.K))
                 self.w[t, self.A[t, k]] = float(
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + np.random.normal(0,self.sigma))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + 0.01*np.random.normal(0,self.sigma))/self.T[t, self.A[t, k]]
             else:
                 self.T[t, self.A[t, k]] += 1
                 self.w[t, self.A[t, k]] = (
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + np.random.normal(0,self.sigma))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + 0.01*np.random.normal(0,self.sigma))/self.T[t, self.A[t, k]]
 
 
 
@@ -610,7 +625,10 @@ class CombiUCB_LDP_laplace():
     def update_ucb_item(self, e, t):
         c = np.sqrt((1.5*np.log(t))/self.T[t-1, e])
         laplace_term = (self.K/self.epsilon) * np.sqrt((24 * np.log(t))/self.T[t-1, e])
-        return self.w[t-1, e] + c + laplace_term
+        # print('*****')
+        # print(c)
+        # print(laplace_term)
+        return self.w[t-1, e] + c + 0.1*laplace_term
 
     def update_weights(self, t):
         self.T[t] = self.T[t-1]
@@ -620,11 +638,11 @@ class CombiUCB_LDP_laplace():
                 self.T[t, self.A[t, k]] += 1
                 #print(self.K, np.random.laplace(self.epsilon/self.K))
                 self.w[t, self.A[t, k]] = float(
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]] + 0.01*np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
             else:
                 self.T[t, self.A[t, k]] += 1
                 self.w[t, self.A[t, k]] = (
-                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
+                    self.T[t-1, self.A[t, k]]*self.w[t-1, self.A[t, k]]+1 + 0.01*np.random.laplace(0,self.K/self.epsilon))/self.T[t, self.A[t, k]]
 
 
 

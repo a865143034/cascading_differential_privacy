@@ -13,34 +13,156 @@ from utils import *
 from cascade_ucb import *
 
 
+def plot_3():
+    A=[]
+    B=[]
+    C=[]
+    D=[]
+    E=[]
+    for i in range(99):
+        D.append(i*0.02+0.02)
+    #print(D)
+    #print(len(D))
+    f1=open('dp_l_8', 'r')
 
-A=[]
-B=[]
-C=[]
+    for line in f1.readlines():
+        line=line.strip()
+        line=float(line)
+        A.append(line)
+    A=np.cumsum(A)
+    #print(len(A))
 
-f1=open('cascading_ldp_origin', 'r')
+    f2=open('dp_l_12', 'r')
+    for line in f2.readlines():
+        line=line.strip()
+        B.append(float(line))
+    B=np.cumsum(B)
 
-for line in f1.readlines():
-    line=line.strip()
-    line=float(line)
-    A.append(line)
-A=np.cumsum(A)
+    f3=open('dp_l_16', 'r')
+    for line in f3.readlines():
+        line=line.strip()
+        C.append(float(line))
+    C=np.cumsum(C)
 
-f2=open('cascading_ldp_laplace_2', 'r')
-for line in f2.readlines():
-    line=line.strip()
-    B.append(float(line))
-B=np.cumsum(B)
-f3=open('cascading_ldp_gaussian_2', 'r')
-for line in f3.readlines():
-    line=line.strip()
-    C.append(float(line))
-C=np.cumsum(C)
+    f4=open('dp_l_20', 'r')
+    for line in f4.readlines():
+        line=line.strip()
+        D.append(float(line))
+    D=np.cumsum(D)
 
-plt.plot(A,'r')
-plt.plot(B,'b')
-plt.plot(C,'y')
-plt.ylabel("Reget")
-plt.xlabel("Rounds")
-plt.savefig('convergence')
-plt.show()
+
+    figure,ax = plt.subplots()
+    #plt.tight_layout()
+    plt.gcf().set_facecolor(np.ones(3))
+    plt.grid(linestyle='--')
+    plt.xlim(xmin=0, xmax=1e5)
+    plt.ylim(ymin=0, ymax=3500)
+    plt.plot(D,'#054E9F',linestyle='-.',label='L=20',linewidth=2)
+    plt.plot(C,color='coral',label='L=16',linestyle='--',linewidth=2)
+    plt.plot(B,color='m',label='L=12',linestyle=':',linewidth=2)
+    #plt.plot(D,color='g',linestyle='-.',label=chr(949)+'=2',linewidth=2)
+    plt.plot(A,color='c',label='L=8',linewidth=2)
+    plt.ylabel("Cumulative Reget",fontsize=14)
+    plt.xlabel("Rounds",fontsize=14)
+    plt.legend(fontsize=14,loc=2)
+
+    plt.tick_params(labelsize=15)
+    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    # print labels
+    [label.set_fontname('Times New Roman') for label in labels]
+
+    plt.savefig('dp_2.pdf')
+    plt.show()
+
+
+def plot_1():
+    A=[]
+
+    f1=open('epsilon_ceshi_laplace.txt', 'r')
+
+    for line in f1.readlines():
+        line=line.strip()
+        line=float(line)
+        A.append(line)
+
+    plt.tight_layout()
+    plt.style.use('fivethirtyeight')
+
+    plt.figure(figsize=(5, 5))
+
+    plt.plot(A, 'r')
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.tick_params(labelsize=13)
+    plt.xlabel('Timesteps')  # ,fontsize=18)
+    plt.ylabel('Cumulativeregret')  # ,fontsize=18)
+    plt.tick_params(labelsize=16)
+    plt.legend(fontsize=15, handlelength=1.5, framealpha=0)
+
+
+
+    plt.show()
+
+
+
+
+
+def plot_4():
+    A = []
+    B = []
+    C = []
+    D=[]
+    for i in range(99):
+        D.append(i * 0.02 + 0.02)
+    # print(D)
+    # print(len(D))
+    f1 = open('combinatorial_ldp_origin', 'r')
+
+    for line in f1.readlines():
+        line = line.strip()
+        line = float(line)
+        A.append(line)
+    A = np.cumsum(A)
+    # print(len(A))
+
+    f2 = open('combinatorial_ldp_laplace_2', 'r')
+    for line in f2.readlines():
+        line = line.strip()
+        B.append(float(line))
+    B = np.cumsum(B)
+
+    f3 = open('combinatorial_ldp_gaussian_2', 'r')
+    for line in f3.readlines():
+        line = line.strip()
+        C.append(float(line))
+    C = np.cumsum(C)
+
+
+    figure, ax = plt.subplots()
+    # plt.tight_layout()
+    plt.gcf().set_facecolor(np.ones(3))
+    plt.grid(linestyle='--')
+    plt.xlim(xmin=0, xmax=1e5)
+    plt.ylim(ymin=0, ymax=30000)
+    plt.plot(A, 'g', label='Non-private', linewidth=2)
+    plt.plot(B, color='coral', label='Laplace-LDP', linestyle='--', linewidth=2)
+    plt.plot(C, color='#054E9F', label='Gaussian-LDP', linestyle='-.', linewidth=2)
+    plt.ylabel("Cumulative Reget", fontsize=14)
+    plt.xlabel("Rounds", fontsize=14)
+    plt.legend(fontsize=14, loc=2)
+
+    plt.tick_params(labelsize=15)
+    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    # print labels
+    [label.set_fontname('Times New Roman') for label in labels]
+
+    plt.savefig('combi_2.pdf')
+    plt.show()
+
+
+
+plot_4()
+
+
+
+#plt.savefig(figname,bbox_inches="tight")

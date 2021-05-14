@@ -26,17 +26,18 @@ def cal_num(t):
     print(num1,residue,num2)
     return num1 + num2
 
-a=np.random.laplace(0,100,100)
-
-b=np.random.normal(0,267,100)
-
-print(a)
-print(b)
-#print(b)
-
-a=[1,2,3]
-b=[4,5,6]
-c=np.mean(a,b)
-print(c)
+# a=np.random.laplace(0,100,100)
+#
+# b=np.random.normal(0,267,100)
+#
+# print(a)
+# print(b)
+# #print(b)
+#
+# a=[1,2,3]
+# b=[4,5,6]
+# c=np.mean(a,b)
+# print(c)
+print(np.random.laplace(0,4/0.5,100))
 
 

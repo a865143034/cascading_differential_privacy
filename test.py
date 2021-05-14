@@ -19,25 +19,33 @@ K = 4
 
 #weights = [p for i in range(K)] + [np.abs(p-delta) for i in range(L-K)]
 
+#8
+#weights = [0.9,0.5,0.5,0.5,0.7,0.7,0.7,0.7]
 
+#12
+#weights = [0.9,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.7,0.7,0.7,0.7]
 
-
+#16
+#weights = [0.9,0.2,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.7,0.7,0.7,0.7]
+#20
 weights = [0.9,0.2,0.2,0.2,0.2,0.2,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.7,0.7,0.7,0.7]
 shuffle(weights)
 #print(weights)
 #cascade_model = CascadeUCB(number_of_rounds,L,K)
 
 #cascade_model = CascadeUCB_LDP_laplace(number_of_rounds,L,K)
-cascade_model = CascadeUCB_LDP_gaussian(number_of_rounds,L,K)
+#cascade_model = CascadeUCB_LDP_gaussian(number_of_rounds,L,K)
 #cascade_model = CascadeUCB_DP(number_of_rounds,L,K)
 #cascade_model = CombiUCB_LDP_gaussian(number_of_rounds,L,K)
-#cascade_model = CombiUCB_LDP_laplace(number_of_rounds,L,K)
+cascade_model = CombiUCB_LDP_laplace(number_of_rounds,L,K)
+#cascade_model = CombiUCB_origin(number_of_rounds,L,K)
+#cascade_model = CascadeUCB_DP(number_of_rounds,L,K)
 
 dataset = generate_data(number_of_rounds, weights)
 #先全部把所有数据sample出来
 
 # initializing
-cascade_model.initialize(dataset,weights,0.5,0.001)
+cascade_model.initialize(dataset,weights,2)
 
 # training
 A=[]
@@ -55,7 +63,7 @@ for i in range(number_of_rounds):
 
 
 
-f=open('cascading_ldp_gaussian_0_5', 'w')
+f=open('combinatorial_ldp_laplace_2', 'w')
 for i in B:
     f.write(str(i)+'\n')
 f.close()
@@ -91,14 +99,14 @@ plt.show()
 # plt.savefig('nbitems')
 # plt.show()
 
-assert 1==0
-# Hyperparams
-list_L =[16,16,16,8]
-list_K =[2,4,4,2]
-list_delta = [0.15,0.15,0.075,0.075]
-n_runs = 5
-p=0.2
-number_of_rounds =  int(1e2)
+# assert 1==0
+# # Hyperparams
+# list_L =[16,16,16,8]
+# list_K =[2,4,4,2]
+# list_delta = [0.15,0.15,0.075,0.075]
+# n_runs = 5
+# p=0.2
+# number_of_rounds =  int(1e2)
 
 
 

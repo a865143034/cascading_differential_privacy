@@ -23,19 +23,19 @@ weights = [0.9,0.2,0.2,0.2,0.2,0.2,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.7,0
 def run_epsilon():
     epsilon=0.02
     A=[]
-    f=open('epsilon_ceshi.txt','w')
+    f=open('epsilon_ceshi_origin.txt', 'w')
     while epsilon<=2:
         res=0
         for i in range(10):
             shuffle(weights)
-            cascade_model = CascadeUCB_LDP_laplace(number_of_rounds, L, K)
+            cascade_model = CascadeUCB(number_of_rounds, L, K)
             #cascade_model = CascadeUCB_LDP_gaussian(number_of_rounds, L, K)
 
             dataset = generate_data(number_of_rounds, weights)
             # 先全部把所有数据sample出来
 
             # initializing
-            cascade_model.initialize(dataset, weights,epsilon)
+            cascade_model.initialize(dataset, weights)
             # training
             for t in range(1, number_of_rounds):
                 cascade_model.one_round(t, dataset)
